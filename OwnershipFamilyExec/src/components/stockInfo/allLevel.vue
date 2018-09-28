@@ -6,7 +6,7 @@
     element-loading-background="rgba(0, 0, 0, 0.8)">
     <div class="firm_stockInfo_content_title">股权信息</div>
     <div class="higherLevel_tree">
-      <iframe src="/familyTree/dome_new/atlas.html" frameborder="0" style="width: 100%;height: 100%;"></iframe>
+      <iframe src="/familyTree/enterprise_atlas/atlas.html" frameborder="0" style="width: 100%;height: 100%;"></iframe>
     </div>
   </div>
 </template>
