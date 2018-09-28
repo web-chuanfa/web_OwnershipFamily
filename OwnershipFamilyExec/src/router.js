@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './pages/home'
-import Tree from './pages/tree'
 import InfoDetail from './pages/infoDetail'
 import China from './components/tabContent/china'
 import ChinaL from './components/tabContent/chinaL'
@@ -22,11 +21,6 @@ import vState from './components/region/vState'
 import vTrade from './components/region/vTrade'
 import BasicInfo from './components/tabContent/basicInfo';
 import StockInfo from './components/tabContent/stockInfo';
-import higherLevel from './components/stockInfo/higherLevel';
-import firstLevel from './components/stockInfo/firstLevel';
-import insideStockholder from './components/stockInfo/insideStockholder';
-import nextLevel from './components/stockInfo/nextLevel';
-import allLowerLevel from './components/stockInfo/allLowerLevel';
 import allLevel from './components/stockInfo/allLevel';
 import RegionSubstance from './components/tabContent/regionSubstance';
 import State from './components/region/state';
@@ -102,26 +96,6 @@ export default new Router({
                     component: StockInfo,
                     children: [
                         {
-                            path: 'higherLevel/:id',
-                            component: higherLevel
-                        },
-                        {
-                            path: 'firstLevel/:id',
-                            component: firstLevel
-                        },
-                        {
-                            path: 'insideStockholder/:id',
-                            component: insideStockholder
-                        },
-                        {
-                            path: 'nextLevel/:id',
-                            component: nextLevel
-                        },
-                        {
-                            path: 'allLowerLevel/:id',
-                            component: allLowerLevel
-                        },
-                        {
                             path: 'allLevel/:id',
                             component: allLevel
                         }
@@ -178,10 +152,6 @@ export default new Router({
                     component: detailTable
                 }
             ]
-        },
-        {
-            path: '/tree',
-            component: Tree
         }
     ]
 })
