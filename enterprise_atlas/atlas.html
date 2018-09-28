@@ -1,0 +1,965 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>股权结构图谱</title>
+    <link rel="stylesheet" href="css/bootstrap.css" type="text/css"/>
+    <link rel="stylesheet" href="css/app.css" type="text/css"/>
+    <link rel="stylesheet" href="css/companyDetail.css" type="text/css"/>
+    <link rel="stylesheet" href="css/jquery.range.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.slimscroll.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script src="js/config.js"></script>
+    <script type="text/javascript" src="js/custom.js"></script>
+    <script type="text/javascript" src="js/echarts2.js"></script>
+    <script src="js/jquery.range.js"></script>
+</head>
+<body>
+	<div style="width:100%;height:100%;" id="screenArea">
+		<div class="container" style="width: 100%;height:100%;">
+			<div id="main" style="width: 100%;height:100%;"></div>
+		</div>
+		<div class="case" style="position: relative;top:-100px;width: 40px;height:40px;display: none;">
+			<input type="text" placeholder="请输入最小值" value="0" id="min">-<input type="text" placeholder="请输入最大值" id="max" value="100">
+            <a href="javascript:;" onclick="maxVal()">搜索</a>
+		</div>
+		<div class="tupu-toolbar">
+            <ul>
+                <li onclick="filter()">
+                    <span class="save">
+                    </span>
+                    筛选
+                </li>
+                <li onclick="maoScale(1)">
+                    <span class="big">
+                    </span>
+                    放大
+                </li>
+                <li onclick="maoScale(2)">
+                    <span class="small">
+                    </span>
+                    缩小
+                </li>
+                <li onclick="maoRefresh()">
+                    <span class="refresh">
+                    </span>
+                    刷新
+                </li>
+                <li onclick="changeScreen(this)" style="display: none;">
+                    <span class="screen">
+                    </span>
+                    全屏
+                </li>
+                <li onclick="saveImg()" style="display: none;">
+                    <span class="save">
+                    </span>
+                    保存
+                </li>
+                <li onclick="show_all(1)">
+                    <span class="tupu_allUp">
+                    </span>
+                    全部上级
+                </li>
+                <li onclick="show_all(2)">
+                    <span class="tupu_allDown">
+                    </span>
+                    全部下级
+                </li>
+                <li onclick="show_one(1)">
+                    <span class="tupu_onlyOneUp">
+                    </span>
+                    只列上一级
+                </li>
+                <li onclick="show_one(2)">
+                    <span class="tupu_onlyOneDown">
+                    </span>
+                    只列下一级
+                </li>
+                <li onclick="show_all(0)">
+                    <span class="tupu_allFold">
+                    </span>
+                    全部展开
+                </li>
+            </ul>
+		</div>
+		<div id="company-detail" class="company-detail">
+			<div class="m-t">
+				<span class="mao-divider"></span><span class="mao-light-grey">公司信息</span><button class="close">&times;</button>
+			</div>
+			<div class="m-t-sm">
+				<span class="mao-company-name" href="javascript:;"></span><span class="mao-company-status"></span>
+			</div>
+			<div class="m-t">
+				<div>
+					<span class="mao-light-grey">法定代表人：</span><span class="mao-grey mao-oper"></span>
+				</div>
+				<div>
+					<span class="mao-light-grey">注册资本：</span><span class="mao-grey mao-ziben"></span>
+				</div>
+				<div>
+					<span class="mao-light-grey">成立日期：</span><span class="mao-grey mao-date"></span>
+				</div>
+			</div>
+			<div class="m-t">
+				<a class="btn mao-tupu-link" target="_blank">查看图谱</a>
+			</div>
+			<div class="m-t mao-content m-b-lg">
+				<ul class="nav nav-tabs mao-tabs">
+					<li class="active">
+                        <a href="#gudong" aria-controls="gudong" role="tab" data-toggle="tab">股东</a>
+                    </li>
+					<li>
+                        <a href="#touzi" aria-controls="touzi" role="tab" data-toggle="tab">对外投资</a>
+                    </li>
+					<li>
+                        <a href="#member" aria-controls="member" role="tab" data-toggle="tab">主要成员</a>
+                    </li>
+				</ul>
+				<div class="tab-content mao-tab-content">
+					<div role="tabpanel" class="gudong-list tab-pane fade in active" id="gudong">
+					</div>
+					<div role="tabpanel" class="touzi-list tab-pane fade" id="touzi">
+					</div>
+					<div role="tabpanel" class="member-list tab-pane fade" id="member">
+					</div>
+				</div>
+			</div>
+		</div>
+        <div class="filterStock" id="filterStock">
+            <div class="stock">持股(%):</div>
+            <div class="demo">
+            <input class="range-slider" type="hidden" value="0,100"/>
+            <button id="filter">确定筛选</button>
+          </div>
+        </div>
+        <div class="tooltipW">警告哦，没有上级了!</div>
+	</div>
+    <script src="js/range.js"></script>
+	<script>
+		var myChart;
+		var showKeyNo;
+		var ImageShape = require('zrender/shape/Image');
+		var Rectangle = require('zrender/shape/Rectangle');
+		var treeId = 1;//树杈的ID，随循环增加
+		//获取父页面传过来的id
+		var idPre = window.parent.location.hash.split("?")[0],
+            namePre = window.parent.location.hash.split("?")[1],
+            idAfter,nameAfter;
+		idAfter = idPre.lastIndexOf("\/"),nameAfter = namePre.lastIndexOf("\=");
+		idPre = idPre.substring(idAfter + 1, idPre .length),
+		namePre = namePre.substring(nameAfter + 1, namePre .length);
+		namePre = decodeURI(namePre);
+        //一开始加载页面时执行的方法
+        $(document).ready(function () {
+            resizeScreen();//屏幕适应
+            myChart = echarts.init(document.getElementById('main'));
+            getData();//获取数据
+        });
+		window.onresize=function(){
+			resizeScreen();
+		}
+		var rootData;//根数据，包含投资与被投资
+		var touziData;//投资部分数据
+		var has_root=false;
+		var has_touzi=false;
+        //请求后台数据
+		function getData(min,max){
+            $(".container").html('<div id="main" style="width: 100%;height:100%;"></div>');
+            myChart = echarts.init(document.getElementById('main'));
+            // 测试环境 10.76.3.74:8081
+			var url = dataUrl + "/familyTree/EntinvInfo/getEntinvAllexpandInfo";
+			$.ajax({
+		        url:url,
+		        type: 'POST',
+		        data: {
+					enterpriseId: idPre,
+					enterpriseName: namePre,
+                    proportionMin: min,
+                    proportionMax: max
+				},
+		        dataType: 'JSON',
+		        success: function (data){
+		        	//console.log(data)
+		            $('#load_data').hide();
+		            if(data.Status === 200){
+		                $('#no_data').hide();
+    					if(data.Result!=""){
+    						rootData = data.Result;
+    					}else{
+                            $(".tooltipW").text("没有找到企业关系!")
+                            tooltipW();
+    						rootData =[];
+    						return;
+    					}
+                        if((!rootData.DetailList||rootData.DetailList.length==0)&&(!rootData.touzi||rootData.touzi.length==0)){
+                            $(".tooltipW").text("没有找到企业关系!")
+                            tooltipW();
+                            return;
+                        }
+    					if(rootData.DetailList&&rootData.DetailList.length>0)has_root=true;
+						if(rootData.touzi&&rootData.touzi.length>0)has_touzi=true;
+		                // rootData = data.Result;
+		                transTree(rootData,1);
+		                initTree(rootData);
+		                transTouzi(rootData);
+		                if(touziData)initTree(touziData);
+		                drawGuquan(rootData);
+		            }else{
+		                $('#no_data').show();
+		            }
+		        }
+		    });
+		}
+        function changeScreen(dom) {
+            //全屏事件
+			if(!isFullScreen()){
+			  $(dom).find('i').attr('class','fa fa-compress');
+                launchFullScreen($('#screenArea')[0]);//来自custom.js
+			}else{
+			  $(dom).find('i').attr('class','fa fa-expand');
+			  exitFullScreen();//来自custom.js
+			}
+		}
+		function maoRefresh(){
+			//刷新
+			refresh();
+		}
+		function refresh(){
+			//刷新事件，不怎么看得懂，看来是调度了RESTORE这个方法，没找到相关文档
+			var ecConfig = require('echarts/config');
+			myChart._messageCenter.dispatch(ecConfig.EVENT.RESTORE, null, null, myChart);
+		}
+        function saveImg() {
+            //保存为图片事件
+            if (isFullScreen()) {
+                //先退出全屏
+			    exitFullScreen();
+			    setTimeout(function() {
+			    jietu();
+			}, 1000);
+
+			}else{
+			    jietu();
+			}
+            function jietu() {
+                //创建一个全屏的元素
+				var jietuMask=document.createElement("div");
+				$(jietuMask).attr('style','position: fixed; background: #fff; z-index: 1000; top: 0px; bottom: 0px; left: 0px; right: 0px;');
+				document.body.appendChild(jietuMask);
+
+				var width = 1440;
+				var height = 900;
+
+				var maxX = 0;
+				var minY = 10000;
+				var moveDown = 0;
+
+                var shapeList = myChart.getZrender().storage.getShapeList();
+                //定义每一个形状的大小
+				for(var i=0;i<shapeList.length;i++){
+					if(shapeList[i].clickcom){
+						myChart.getZrender().delShape(shapeList[i].id);
+					}
+					if(shapeList[i].style&&shapeList[i].style.iconType=='rectangle'){
+						if(shapeList[i].style.x>maxX){
+							maxX = shapeList[i].style.x;
+						}
+						if(shapeList[i].style.y<minY){
+							minY = shapeList[i].style.y;
+						}
+					}
+				}
+                //获取宽高
+				if((maxX*2-400)>width){
+					width = 2*parseInt(maxX);
+				}
+				if(minY<100){
+					moveDown = -parseInt(minY)/2;
+					height = 1400;
+                }
+                //填充底色
+                //180902：使用getDataURL方法会失去元素块以外的部分
+				var shape1 = new Rectangle({
+					style: {
+						x: -1000,
+						y: -1000,
+						width: width+1000,
+						height: height+1000,
+						color:'#fff'
+					} 
+				});
+				shape1.zlevel=1;
+				shape1.z=-2;
+				shape1.clickcom = true;
+				myChart.getZrender().addShape(shape1);
+
+
+				var layer = myChart.getZrender().painter._layers[1];
+				var bS = layer.scale.concat();//比例
+				var bP = layer.position.concat();//焦点
+
+				layer.scale = [1,1,0,0];
+				layer.position = [0,0];
+
+				var bW = myChart.getZrender().getWidth();//什么的宽
+				var bH = myChart.getZrender().getHeight();//什么的高
+
+				$('#main').width(width);
+				$('#main').height(height);
+				
+				var zdW = myChart.getZrender().getWidth();
+				var zdH = myChart.getZrender().getHeight();
+				layer.position[1] = moveDown;
+                myChart.resize();//尺寸重置
+				myChart.getZrender().painter.refresh();
+                setTimeout(function () {
+                    //取canvas并下载
+					var canvas = $('#main canvas')[1];
+                    download(canvas, 'jpg');
+                    //恢复原尺寸
+					$('#main').width('100%');
+					$('#main').height(bH);
+					myChart.resize();//尺寸重置
+					layer.scale = bS;//比例恢复
+					layer.position = bP;//焦点恢复
+					myChart.getZrender().render();//渲染
+					initZrender();//配置展开按钮
+					$(jietuMask).css('display','none');//遮罩消失
+				}, 300);
+			}
+		}
+        function maoScale(type) {
+            //放大缩小
+			var centerX = myChart.getZrender().getWidth()/2;
+			var centerY = myChart.getZrender().getHeight()/2;
+			var layer = myChart.getZrender().painter._layers[1];
+			var x = layer.scale[0]*centerX+layer.position[0];
+			var y = layer.scale[1]*centerY+layer.position[1];
+			var scale = layer.scale[0];
+			if(type==1){
+			  scale+=0.3;
+			}else if(type==2){
+			  scale-=0.3;
+			}
+			if(scale>=0.3&&scale<=2){
+			  layer.scale[0] = scale;
+			  layer.scale[1] = scale;
+			  myChart.getZrender().render();
+			  layer.position[0] = x-layer.scale[0]*centerX
+			  layer.position[1] = y-layer.scale[1]*centerY
+			  myChart.getZrender().render();
+			}
+        }
+        //封装提示框
+        function tooltipW(){
+            $(".tooltipW").show();
+            setTimeout(function(){
+                $(".tooltipW").fadeOut("slow");;
+            },800)
+        }
+
+        function show_one(group) {
+            //只列上一级/下一级;group=1/2
+            if (group == 1&&has_root) {
+                if(has_root)getNode1(rootData);
+                if(has_touzi)getNode1(touziData);
+                getNode2(rootData);
+            }
+            else if(group == 1&&!has_root){
+                $(".tooltipW").text("警告哦，没有上级了!")
+                tooltipW();
+            }
+            else if(group == 2&&has_touzi) {
+                if(has_root)getNode1(rootData);
+                if(has_touzi)getNode1(touziData);
+                getNode2(touziData);
+            }
+            else  if(group == 2&&!has_touzi){
+                $(".tooltipW").text("警告哦，没有下级了!")
+                tooltipW();
+            }
+            //深度遍历-收起
+            function getNode1(data) {
+                if (data.children) {
+                    for (var i = 0; i < data.children.length; i++) {
+                        getNode1(data.children[i]);//对子集遍历
+                    }
+                }
+                if (data._children) {
+                    for (var j = 0; j < data._children.length; j++) {
+                        getNode1(data._children[j]);//对子集遍历
+                    }
+                }
+                if (data.children && data.children.length > 0 && data.KeyNo) {
+                    //收起全部的树杈
+                    data._children = data.children;
+                    data.children = null;
+                    data.extend = 1;
+                }
+            }
+            //单层遍历-展开
+            function getNode2(data) {
+                //展开单层的树杈
+                data.children = data._children;
+                data._children = null;
+                data.extend = 2;
+                if (data.children.length > 0) {
+                    for (var i = 0; i < data.children.length; i++) {
+                        if (data.children[i]._children) {
+                            data.children[i].children = data.children[i]._children;
+                            data.children[i]._children = null;
+                        }
+                    }
+                }
+            }
+            // if (rootData.children == null) rootData.children = [];
+            // if (touziData.children == null) touziData.children = [];
+            // myChart.clear();//清空图表
+            // myChart.setOption(option); //配置图表
+            // initZrender();//配置展开按钮
+            // if (rootData.children.length == 0) rootData.children == null;
+            // if (touziData.children.length == 0) touziData.children == null;
+
+            //如果一个系列数据全部收起在配置图表时会报错，所以先赋空集后赋空值
+            if (rootData&&rootData.children == null) rootData.children = [];
+            if (touziData&&touziData.children == null) touziData.children = [];
+   			myChart.clear();//清空图表
+            myChart.setOption(option); //配置图表
+            initZrender();//配置展开按钮
+            if (rootData&&rootData.children&&rootData.children.length == 0) rootData.children == null;
+            if (touziData&&touziData.children&&touziData.children.length == 0) touziData.children == null;
+        }
+        function show_all(group) {
+            //全部上级/全部下级/全部展开;group=1/2/0
+            if (group == 1&&has_root) {
+                if(has_touzi)getNode1(touziData);
+                getNode2(rootData);
+            }
+            else if(group == 1&&!has_root){
+                $(".tooltipW").text("警告哦，没有全部上级了!")
+                tooltipW();
+            }else if (group == 2&&has_touzi) {
+                if(has_root)getNode1(rootData);
+                getNode2(touziData);
+            }
+            else if(group == 2&&!has_touzi) {
+                $(".tooltipW").text("警告哦，没有全部下级了!")
+                tooltipW();
+            }else if (group == 0&&(has_root||has_touzi)) {
+                if(has_root)getNode2(rootData);
+                if(has_touzi)getNode2(touziData);
+            }
+            else {
+                $(".tooltipW").text("警告哦，无可展开的了!")
+                tooltipW();
+            };
+            //深度遍历-收起
+            function getNode1(data) {
+                if (data.children&&data.children.length>0) {
+                    for (var i = 0; i < data.children.length; i++) {
+                        getNode1(data.children[i]);//对子集遍历
+                    }
+                }
+                if (data._children&&data._children.length>0) {
+                    for (var j = 0; j < data._children.length; j++) {
+                        getNode1(data._children[j]);//对子集遍历
+                    }
+                }
+                if (data.children && data.children.length > 0 && data.KeyNo) {
+                    //收起全部的树杈
+                    data._children = data.children;
+                    data.children = null;
+                    data.extend = 1;
+                }
+            }
+            //深度遍历-展开
+            function getNode2(data) {
+                if (data._children) {
+                    for (var i = 0; i < data._children.length; i++) {
+                        getNode2(data._children[i]);//对子集遍历
+                    }
+                }
+                if (data.children) {
+                    for (var j = 0; j < data.children.length; j++) {
+                        getNode2(data.children[j]);//对子集遍历
+                    }
+                }
+                if (data._children && data._children.length > 0 && data.KeyNo) {
+                    //展开全部的树杈
+                    data.children = data._children;
+                    data._children = null;
+                    data.extend = 2;
+                }
+            }
+            if (rootData&&rootData.children == null) rootData.children = [];
+            if (touziData&&touziData.children == null) touziData.children = [];
+            myChart.clear();//清空图表
+            myChart.setOption(option); //配置图表
+            initZrender();//配置展开按钮
+            if (rootData&&rootData.children&&rootData.children.length == 0) rootData.children == null;
+            if (touziData&&touziData.children&&touziData.children.length == 0) touziData.children == null;
+        }
+		function transTouzi(rootData){
+            //对数据的下级进行处理
+			if(rootData.touzi && rootData.touzi.length>0){
+				touziData = {};
+				touziData.Name = rootData.Name;
+                touziData.DetailList = rootData.touzi;//将下级赋值到DetailList
+				//同样将中心公司作为touziData的父项
+				transTree(touziData,2);//对下级进行如同上级的深度遍历
+				touziData.name = rootData.Name;//命名
+                touziData.Sontotal = rootData.Sontotal;//下级总数
+				touziData.labelClick = false;//文字不可点击
+				touziData.clickable = false;//块不可点击
+				touziData.symbolSize = [touziData.name.length*16+40, 50];//size
+				touziData.symbol = 'rectangle';
+				touziData.itemStyle =  {
+					normal: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#333",
+						label: {
+							show: true,
+							position: "inside",
+							textStyle: {
+								color:'#000',
+								fontFamily: "MicroSoft YaHei",
+								fontSize: 16,
+								fontStyle: "normal",
+							},
+						}
+					},
+					emphasis: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#333",
+					}
+				};
+			}
+		}
+        function transTree(data, group) {
+            //group为分组标识，1为上级，2为下级
+            //深度遍历循环，对数据每一层做如下操作
+            //将DetailList赋值到children并将DetailList清空
+			data.children = data.DetailList;
+			data.DetailList = undefined;
+			data.treeId = treeId;
+            var fontSize = 14;
+            //字体大小、换行符和省略符
+            if(data.Sontotal != "0"){
+                data.name = (data.Name+"\n直属下级："+data.Sontotal).replace(/(.{7})(?=.)/g, '$1\n');
+            }else{
+                data.name = data.Name.replace(/(.{7})(?=.)/g, '$1\n');
+            }
+            // data.name = (data.Name+"\n直属下级："+data.Sontotal).replace(/(.{7})(?=.)/g, '$1\n');
+			// data.name = data.Name.replace(/(.{7})(?=.)/g, '$1\n');
+			if(data.Name.length>36){
+				var fontSize = 12;
+				data.name = (data.Name.substr(0,35)+'…').replace(/(.{9})(?=.)/g, '$1\n');
+			}else if(data.Name.length>21 && data.Name.length<=36){
+				var fontSize = 12;
+				data.name = data.Name.replace(/(.{9})(?=.)/g, '$1\n');
+			}
+            data.group = group;//分组赋值
+			var  children = data.children;
+            if (!children) {
+                //无子集项样式
+				data.symbol = 'rectangle';
+				data.symbolSize= [120, 62],
+				data.labelClick = true;
+				data.itemStyle =  {
+					normal: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#333",
+						label: {
+							show: true,
+							position: "inside",
+							textStyle: {
+								fontFamily: "MicroSoft YaHei",
+								fontSize: fontSize,
+								color:'#333',
+								fontStyle: "normal",
+							},
+						}
+					},
+					emphasis: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#333",
+					}
+				};
+            } else {
+                //有子集项样式
+				data.symbol = 'rectangle';
+				data.symbolSize= [120, 62],
+				data.labelClick = true;
+				data.itemStyle =  {
+					normal: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#333",
+						label: {
+							show: true,
+							position: "inside",
+							textStyle: {
+								fontFamily: "MicroSoft YaHei",
+								fontSize: fontSize,
+								color:'#333',
+								fontStyle: "normal",
+							},
+						}
+					},
+					emphasis: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#333",
+					}
+				};
+				for(var i=0;i<children.length;i++){
+					transTree(children[i],group);//对子集内所有项循环
+					var tamp = children[i];//层级增加，将原自身写入children
+					var Ratio = (!children[i].Percent||children[i].Percent=='0%')?'':children[i].Percent;
+					if(Ratio){
+                        if(Ratio < 0.01){
+                            Ratio = '<0.01%';
+                        }else{
+                            Ratio = (parseFloat(children[i].Percent.substr(0, children[i].Percent.length - 1)).toFixed(4)) * 10000 / 10000 + '%';//用以为线命名；很搞笑的格式化不知道谁写的
+                        }
+					}
+					children[i] = {
+						name:Ratio,
+						symbol: "arrowdown",
+						symbolSize: [12, 12],
+						tooltip: {
+							show: false
+						},
+						clickable: false,
+						hoverable:false,
+						itemStyle: {
+							normal: {
+								color: "#333",
+								borderWidth:0,
+								label: {
+									show: !0,
+									position: "right",
+									textStyle: {
+										fontFamily: "MicroSoft YaHei",
+										fontSize: fontSize,
+										fontStyle: "normal",
+									},
+								}
+							},
+							emphasis: {
+								color: "#333",
+								borderWidth:0,
+								label: {
+									show: !0,
+									position: "right",
+									textStyle: {
+										fontFamily: "MicroSoft YaHei",
+										fontSize: fontSize,
+										fontStyle: "normal",
+									},
+								}
+							}
+						},
+						lineStyle: {
+							width: 1,
+							color: "#333"
+						},
+                        children: [tamp]
+					}
+				}
+			}
+            if (data.Org == 2) {
+                //Org：0为法人，2为自然人
+                //此为自然人特定样式
+				data.symbol = 'rectangle';
+				data.clickable = true;
+				data.labelClick = false;
+				data.symbolSize= [75, 35],
+				data.itemStyle =  {
+					normal: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#128bed",
+						label: {
+							show: !0,
+							position: "inside",
+							textStyle: {
+								color:'#128bed',
+								fontFamily: "MicroSoft YaHei",
+								fontSize: 14,
+								fontStyle: "normal",
+							},
+						}
+					},
+					emphasis: {
+						color: "#fff",
+						borderWidth: "1",
+						borderColor: "#128bed",
+					}
+				};
+            }
+			treeId++;
+		}
+
+        function initTree(data) {
+            //中心公司样式二次处理
+			data.name = data.Name+"\n直属下级："+data.Sontotal;//不需要百分比
+			data.labelClick = false;//文字不可点击
+			data.clickable = true;//块不可点击
+			data.symbolSize = [data.Name.length*16+40, 50];//size
+            data.symbol = 'rectangle';
+            data.KeyNo = idPre;//中心公司id
+            //data.treeId = 0;//中心树杈编0
+			data.itemStyle =  {
+				normal: {
+					color: "#55a2f0",
+					borderWidth: "1",
+					borderColor: "#55a2f0",
+					label: {
+						show: true,
+						position: "inside",
+						textStyle: {
+							color:'#ffffff',
+							fontFamily: "MicroSoft YaHei",
+							fontSize: 16,
+							fontStyle: "normal"
+						},
+					}
+				},
+				emphasis: {
+					color: "#55a2f0",
+					borderWidth: "1",
+					borderColor: "#55a2f0"
+				}
+			};
+			getNode(data);
+            function getNode(data) {
+                //标识出作为公司而非线的子集
+				if(data.children){
+					for(var i=0;i<data.children.length;i++){
+						getNode(data.children[i]);//再次深度遍历
+					}
+				}
+                if (data.children && data.children.length > 0 && data.KeyNo && data.KeyNo != idPre) {
+                    //如果该对象不是中心公司且且不是连接线且有子集
+					data._children = data.children;//children换个名称
+					data.children = null;
+					data.extend = 1;//含义为按钮处在待展开状态
+				}
+			}    
+		}
+
+		//股权结构图
+		function drawGuquan(rootData){
+			myChart.clear();//清空图表
+			option = {
+				title : {
+					text: '',
+				},
+				series : [
+					{
+						type: "tree",
+						orient: "vertical",//纵向分布
+						nodePadding: 50,//节点间距
+						layerPadding: 40,//层级间距
+						symbol:  "circle",
+						roam: true,//滚轮缩放和拖动
+                        rootLocation: {
+                            //根节点坐标
+							"x": "50%",
+							"y": "55%"
+						},
+						direction:"inverse",//反向
+						data: [rootData]//上级数据
+					}   
+				]
+			};
+			if(touziData){
+				option.series.push({
+					type: "tree",
+						orient: "vertical",
+						nodePadding: 50,
+						layerPadding: 40,
+						symbol:  "circle",
+						roam: true,
+                        rootLocation: {
+                            //根节点坐标
+							"x": "50%",
+							"y": "55%"
+						},
+						//direction:"inverse",//不设置则为正向
+						data: [touziData]//下级数据
+				})
+			}
+			myChart.setOption(option);//配置图表
+			initZrender();//配置展开按钮
+			animatieChart(myChart);//来自custom.js，缩放动画
+            myChart.on('click', function (e) {
+                //所有公司限时弹窗
+                showKeyNo = e.data.KeyNo;
+                console.log(e);
+                showDetail(showKeyNo,'company_guquan');//来自custom.js，弹窗规则，可迁移
+
+                //显示弹窗
+                // if (e.data.KeyNo && e.data.KeyNo != idPre){
+                //     if (e.data.KeyNo[0] == 'p') {
+                //         //如果是p开头则跳转
+                //         window.open('/pl_'+e.data.KeyNo+'.html');
+                //     } else {
+                //         //显示弹窗
+                //         showKeyNo = e.data.KeyNo;
+                //         showDetail(showKeyNo,'company_guquan');//来自custom.js，弹窗规则，可迁移
+                //     }
+                // }
+			});
+            myChart.getZrender().on('click', function (e) {
+                //点击展开按钮事件
+                //console.log(e);
+				if(e.target&&e.target.clickcom){
+                    if (e.target.children || e.target._children) {
+                        //如果有这两个children中的一个；待展开有_chilrden展开后有chilrden
+                        troggleTree(e.target.keyNo, e.target.treeId, e.target.group);//展开或收起树杈
+					}
+				}
+			}); 
+
+            myChart.on('restore', function (param) {
+                //刷新事件
+                getNode(rootData);//又是深度遍历
+                if(touziData)getNode(touziData);
+				function getNode(data){
+					if(data.children){
+						for(var i=0;i<data.children.length;i++){
+							getNode(data.children[i]);//对子集遍历
+						}
+					}
+                    if (data.children && data.children.length > 0 && data.KeyNo && data.KeyNo != idPre) {
+                        //收起全部的树杈
+						data._children = data.children;
+						data.children = null;
+						data.extend = 1;
+					}
+				} 
+				myChart.clear(); //清空图表 
+				myChart.setOption(option);//配置图表
+				initZrender();//配置展开按钮
+				animatieChart(myChart);//进入动画
+			});
+		}
+
+        function initZrender() {
+            //设置所有点击展开的按钮
+            //180902：有关于Zrender的内容网络上缺乏文档，很多内容靠猜测
+			var shapeList = myChart.getZrender().storage.getShapeList();//可能是所有已有形状列表，包括线和块
+			for(var i=0;i<shapeList.length;i++){
+				if(shapeList[i].clickcom){
+					myChart.getZrender().delShape(shapeList[i].id);//不理解作用
+				}
+			}
+			for(var i=0;i<shapeList.length;i++){
+                if (shapeList[i]._echartsData && shapeList[i]._echartsData._data.extend) {
+                    //对所有为非边且有子集且非中心公司的项执行
+                    //extend：1为未展开，2为已展开
+					var iconImg = '';//小加号或小减号的路径
+					var isIE11 = (!!window.ActiveXObject || "ActiveXObject" in window);
+					if(shapeList[i]._echartsData._data.extend==1){
+						if(isIE11){
+							iconImg = '/familyTree/dome_new/img/tupu_cross.png';
+						}else{
+							iconImg = '/familyTree/dome_new/img/tupu_cross.svg';
+						}
+					}else if(shapeList[i]._echartsData._data.extend==2){
+						if(isIE11){
+							iconImg = '/familyTree/dome_new/img/tupu_minus.png';
+						}else{
+							iconImg = '/familyTree/dome_new/img/tupu_minus.svg';
+						}
+                    }
+                    var offset_x = -12;//左偏移
+                    var offset_y = 0;//上下偏移
+                    //上级数据和下级数据当不同赋值
+                    if (shapeList[i]._echartsData._data.group == 1) offset_y = -54;
+                    else if (shapeList[i]._echartsData._data.group == 2) offset_y = 30;
+					var shape = new ImageShape({
+					    style: {
+                            image: iconImg,
+                            //rotation[1][2]分别指代横坐标和纵坐标，初始是块中心点，也就是线起始点
+                            x: shapeList[i].rotation[1] + offset_x,
+                            y: shapeList[i].rotation[2] + offset_y,
+						    width:24,
+						    height:24
+					    }  
+					});
+					shape.keyNo = shapeList[i]._echartsData._data.KeyNo;//为按钮添加相关公司keyNo
+					shape.treeId = shapeList[i]._echartsData._data.treeId;//树杈编号
+					shape.children = shapeList[i]._echartsData._data.children;//出现的子集
+                    shape._children = shapeList[i]._echartsData._data._children;//未出现的子集
+                    shape.group = shapeList[i]._echartsData._data.group;
+					shape.zlevel = 1;
+					shape.z = 4;
+					shape.clickcom = true;
+					shape.hoverable = true;
+					shape.clickable = true;
+                    if (shapeList[i]._echartsData._data.KeyNo != idPre)myChart.getZrender().addShape(shape);
+				}
+            }
+            //可在此处添加水印、衬字
+		}
+
+		function troggleTree(KeyNo,tid,group){
+            //if (KeyNo == '066922e9c1e094b57da351e05a334b3d') {
+                //中心公司处不可收起
+				//return;
+			//}
+            if (group == 1) getNode(rootData);
+            else if (group == 2) getNode(touziData);
+            function getNode(data) {
+                //对数组深度遍历，遇到对应的记录则操作并返回
+				if(data.KeyNo&&data.KeyNo==KeyNo && data.treeId==tid){
+                    if (data.children) {
+                        //展开的情况下变成收起
+						data._children = data.children;
+						data.children = null;
+						data.extend = 1;//赋值为待展开
+						//data.symbol = 'circleCross';
+                    } else if (data._children) {
+                        //收起的情况下展开
+						data.children = data._children;
+						data._children = null;
+						data.extend = 2;//赋值为已展开
+						//data.symbol = 'circleMinus';
+					}
+					return;
+				}
+				if(data.children){
+					for(var i=0;i<data.children.length;i++){
+						getNode(data.children[i]);//对子集遍历
+					}
+				}
+            }
+            //如果一个系列数据全部收起在配置图表时会报错，所以先赋空集后赋空值
+            if (rootData&&rootData.children&&rootData.children == null) rootData.children = [];
+            if (touziData&&touziData.children&&touziData.children == null) touziData.children = [];
+			myChart.clear();//清空图表
+            myChart.setOption(option); //配置图表
+            initZrender();//配置展开按钮
+            if (rootData&&rootData.children&&rootData.children.length == 0) rootData.children == null;
+            if (touziData&&touziData.children&&touziData.children.length == 0) touziData.children == null;
+		}
+        function resizeScreen() {
+            //图表dom大小适应设置
+            if(document.body.clientHeight>700){
+	            $('#screenArea').height(document.body.clientHeight-66);
+            }else{
+	            $('#screenArea').height(580);
+            }
+        }
+	</script>
+</body>
+</html>
