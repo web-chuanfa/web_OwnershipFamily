@@ -25,6 +25,7 @@
                         <el-checkbox-group v-model="regionItem" @change="handleCheckedRegionsChange">
                           <el-checkbox-button v-for="item in regionsList" :label="item" :key="item">{{item}}</el-checkbox-button>
                         </el-checkbox-group>
+                        <p class="regionTotal" v-if="regionItem.length !=0">已选：<a v-for="(item, index) in regionTotal"><span>{{ item.area_name }}({{ item.count }})</span></a></p>
                       </div>
                       <div class="checkbox-group-module">
                         <h6 style="margin-bottom: 0rem;">按行业</h6>
@@ -32,6 +33,7 @@
                         <el-checkbox-group v-model="industryMenu" @change="handleCheckedIndustryChange">
                           <el-checkbox-button v-for="item in industryMenuList" :label="item" :key="item">{{item}}</el-checkbox-button>
                         </el-checkbox-group>
+                        <p class="regionTotal" v-if="industryMenu.length !=0">已选：<a v-for="(item, index) in industryMenuTotal"><span>{{ item.industry_name }}({{ item.count }})</span></a></p>
                       </div>
                       <div class="checkbox-group-module borderB0">
                         <h6 style="margin-bottom: 0rem;">第一级公司</h6>
@@ -41,7 +43,7 @@
                         </el-checkbox-group>
                       </div>
                       <div class="handle clear">
-                        <button class="filter_reset" @click="filterReset">筛选重置</button>
+                        <button class="filter_reset" @click="detailList">查看列表</button>
                         <button class="filter_confirm handle_filter_active" @click="chinaData">确认选择</button>
                       </div>
                     </div>
@@ -65,7 +67,6 @@
 </template>
 <script>
 import vChinaL from './vChinaL';
-import dataUrl  from  '../../../static/js/urls.json';
 const cityOptions = ['东北', '华东', '西北','华中','华南','西南','华北','港澳台'];
 const industryOptions = ['金融','制造','工程承包','房地产','资源与能源','其他'];
 const OrderOptions = ['中信控股有限责任公司','中信云网有限公司','中信银行股份有限公司'];
@@ -104,7 +105,13 @@ export default {
         industry: "",
         order: "",
         filter: "2"
-      }
+      },
+      regionTotal: "",
+      regionChange: "",
+      industryChange: "",
+      orderChange: "",
+      industryMenuTotal: "",
+      areaNameFlag: ""
     }
   },
   watch: {
@@ -124,20 +131,188 @@ export default {
     handleCheckAllChange(val) {
       this.regionItem = val ? cityOptions : [];
       this.isIndeterminate = false;
+      //是否全选大区时 监听大区与行业的变化
+      if(val == false){
+        this.regionTotal = [];
+      }else{
+        //监听大区,行业的数据变化
+        this.regionListenChange();
+        this.industryListenChange();
+      }
     },
     handleCheckedRegionsChange(value) {
       let checkedCount = value.length;
       this.checkAll = checkedCount === this.regionsList.length;
       this.isIndeterminate = checkedCount > 0 && checkedCount < this.regionsList.length;
+      //监听大区与行业数据是否选中
+      this.regionListenChange();
+      this.industryListenChange();
+    },
+    regionListenChange(){
+      //监听大区的数据变化
+      this.regionChange = (this.regionItem).join(",");
+      this.industryChange = (this.industryMenu).join(",");
+      this.orderChange = (this.orderMenu).join(",");
+      //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
+      let urls = this.$API.url +'/basicInfo/getBasicByCountprovinceName';
+      var qs = require('qs');
+      let config = {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          }
+      };
+      //判断是否进入省份页面
+      if(this.$route.query.areaName != undefined){
+        // 在城市页面的时候执行
+        if(this.$route.query.provinceName != undefined){
+          let reqParams = {
+            "mapName" : this.mapName,
+            "flage": "1",
+            "areaName": this.$route.query.areaName,
+            "provinceName": this.$route.query.provinceName,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+          };
+          this.axios.post(urls,qs.stringify(reqParams),config)
+            .then((res) => {
+                this.regionTotal = res.data;
+            }, (err) => {
+              this.$message({
+                  message: '数据请求失败!',
+                  center: true
+              });
+            })
+        }else{
+          // 在省份页面的时候执行
+          let reqParams = {
+            "mapName" : this.mapName,
+            "flage": "1",
+            "areaName": this.$route.query.areaName,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+          };
+          this.axios.post(urls,qs.stringify(reqParams),config)
+            .then((res) => {
+                this.regionTotal = res.data;
+            }, (err) => {
+              this.$message({
+                  message: '数据请求失败!',
+                  center: true
+              });
+          })
+        }
+      }else{
+        //在大区页面传的参数
+        let reqParams = {
+            "mapName" : this.mapName,
+            "flage": "1",
+            "areaName": this.regionChange,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+        };
+        this.axios.post(urls,qs.stringify(reqParams),config)
+        .then((res) => {
+            this.regionTotal = res.data;
+        }, (err) => {
+          this.$message({
+              message: '数据请求失败!',
+              center: true
+          });
+        })
+      }
+    },
+    industryListenChange() {
+      //监听行业的数据变化
+      this.regionChange = (this.regionItem).join(",");
+      this.industryChange = (this.industryMenu).join(",");
+      this.orderChange = (this.orderMenu).join(",");
+      //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
+      let urls = this.$API.url +'/basicInfo/getBasicCountIndustryNameByAll';
+      var qs = require('qs');
+      let config = {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          }
+      };
+      //判断是否进入省份页面
+      if(this.$route.query.areaName != undefined){
+        if(this.$route.query.provinceName != undefined){
+          // 在城市页面的时候执行
+          let reqParams = {
+            "mapName" : this.mapName,
+            "flage": "1",
+            "areaName": this.$route.query.areaName,
+            "provinceName": this.$route.query.provinceName,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+          };
+          this.axios.post(urls,qs.stringify(reqParams),config)
+            .then((res) => {
+                this.industryMenuTotal = res.data;
+            }, (err) => {
+              this.$message({
+                  message: '数据请求失败!',
+                  center: true
+              });
+          })
+        }else{
+          // 在省份页面的时候执行
+          let reqParams = {
+            "mapName" : this.mapName,
+            "flage": "1",
+            "areaName": this.$route.query.areaName,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+          };
+          this.axios.post(urls,qs.stringify(reqParams),config)
+            .then((res) => {
+                this.industryMenuTotal = res.data;
+            }, (err) => {
+              this.$message({
+                  message: '数据请求失败!',
+                  center: true
+              });
+          })
+        }
+      }else{
+        // 在大区页面的时候执行
+        let reqParams = {
+            "mapName" : this.mapName,
+            "flage": "1",
+            "areaName": this.regionChange,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+        };
+        this.axios.post(urls,qs.stringify(reqParams),config)
+          .then((res) => {
+              this.industryMenuTotal = res.data;
+          }, (err) => {
+            this.$message({
+                message: '数据请求失败!',
+                center: true
+            });
+        })
+      }
     },
     handleCheckAllIndustryMenuChange (val){
       this.industryMenu = val ? industryOptions : [];
       this.isIndustry = false;
+      //是否全选行业时 监听大区与行业的变化
+      if(val == false){
+        this.industryMenuTotal = [];
+      }else{
+        //监听大区,行业的数据变化
+        this.regionListenChange();
+        this.industryListenChange();
+      }
     },
     handleCheckedIndustryChange (value){
       let checkedCount = value.length;
       this.industryCheckAll = checkedCount === this.industryMenuList.length;
       this.isIndustry = checkedCount > 0 && checkedCount < this.industryMenuList.length;
+      //监听大区与行业数据是否选中
+      this.regionListenChange();
+      this.industryListenChange();
     },
     handleCheckAllOrderMenuChange (val){
       this.orderMenu = val ? OrderOptions : [];
@@ -207,7 +382,7 @@ export default {
         }
         // flage = 1 ---> 右导航栏，否则 flage为2
         // //按地图查询菜单（国内）getBasicByCountprovinceName
-        let urls = dataUrl.url +'/basicInfo/getBasicByCountprovinceName';
+        let urls = this.$API.url +'/basicInfo/getBasicByCountprovinceName';
         let params = {
           "areaName": this.region,
           "industryName": this.industry,
@@ -233,7 +408,7 @@ export default {
     regionSearch (){
       this.filterReset();
       // /basicInfo/getDomSearchInfo   flage 1 区。  2 省。   3 市
-      let Url = dataUrl.url +'/basicInfo/getDomSearchInfo';
+      let Url = this.$API.url +'/basicInfo/getDomSearchInfo';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -303,6 +478,31 @@ export default {
     handleClick(tab, event) {
         // console.log(tab, event);
     },
+    detailList (){
+      let regionItem = (this.regionItem).join(","),
+          industryMenu = (this.industryMenu).join(","),
+          orderMenu = (this.orderMenu).join(",");
+        this.region = regionItem;
+        this.industry = industryMenu;
+        this.order = orderMenu;
+      //判断是否大区进入省份，城市页面
+      if(this.$route.query.areaName != undefined){
+        this.areaNameFlag = this.$route.query.areaName;
+      }else{
+        this.areaNameFlag = this.region;
+      }
+      this.$router.push({
+          path:"/vDetailTable/",
+          query:{
+            page: this.page,
+            firmName: this.firmName,
+            provinceName: this.$route.query.provinceName,
+            areaName: this.areaNameFlag,
+            industry: this.industry,
+            order: this.order
+          }
+      })
+    },
     showChinaToggle (){
       //重置按地区 按行业 第一级公司
       this.isShow = !this.isShow;
@@ -312,8 +512,11 @@ export default {
       }else{
         this.isDisplay = false;
       }
+      //调用筛选地区，行业的筛选内容
+        this.regionListenChange();
+        this.industryListenChange();
       //按地图查询菜单（国内）
-      let Url = dataUrl.url +'/entMenuInfo/getMapEntMenuInfo';
+      let Url = this.$API.url +'/entMenuInfo/getMapEntMenuInfo';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'

@@ -65,7 +65,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
   export default {
     props:['flage'],
     data() {
@@ -127,7 +126,7 @@ import dataUrl  from  '../../../static/js/urls.json'
             'pageSize': "10",
             "keyword": this.$route.query.firmName
           }
-          let urls = dataUrl.url +'/basicInfo/getEntSearchResult';
+          let urls = this.$API.url +'/basicInfo/getEntSearchResult';
           this.axios.post(urls,qs.stringify(param),config)
             .then((res) => {
               this.tableData3 = res.data.rows;
@@ -141,7 +140,7 @@ import dataUrl  from  '../../../static/js/urls.json'
         }else{
           // getBasicByAllProvinceName  getBasicIndustryNameByAll
           if(!this.$route.query.continentName){
-            let urls = dataUrl.url +'/regionInfo/getBasicByAll';
+            let urls = this.$API.url +'/regionInfo/getBasicByAll';
             this.axios.post(urls,qs.stringify(reqParams),config)
               .then((res) => {
                 this.tableData3 = res.data.rows;
@@ -153,7 +152,7 @@ import dataUrl  from  '../../../static/js/urls.json'
                 });
             });
             }else{
-              let urls = dataUrl.url +'/regionInfo/getBasicCompanyByAll';
+              let urls = this.$API.url +'/regionInfo/getBasicCompanyByAll';
               this.axios.post(urls,qs.stringify(reqParams),config)
                 .then((res) => {
                   this.tableData3 = res.data.rows;
@@ -233,7 +232,7 @@ import dataUrl  from  '../../../static/js/urls.json'
         if(!this.$route.query.flage){
           if(!this.$route.query.continentName){
             this.ProvinceName = this.$route.query.provinceName;
-            let urls = dataUrl.url +'/regionInfo/getBasicByAll';
+            let urls = this.$API.url +'/regionInfo/getBasicByAll';
             let reqParams = {
                 "pageNumber" : this.currentPageNum,
                 "pageSize" : this.pageSize,
@@ -260,7 +259,7 @@ import dataUrl  from  '../../../static/js/urls.json'
             // 世界--大洲
             this.entName = this.$route.query.firmName;
             this.countryNam = this.$route.query.countryNam;
-            let urls = dataUrl.url +'/regionInfo/getBasicCompanyByAll';
+            let urls = this.$API.url +'/regionInfo/getBasicCompanyByAll';
             let reqParams = {
                 "pageNumber" : this.currentPageNum,
                 "pageSize" : this.pageSize,
@@ -284,7 +283,7 @@ import dataUrl  from  '../../../static/js/urls.json'
         }else{
           //不是地区筛选的 搜索
           if(!this.$route.query.addressName){
-            let urls = dataUrl.url +'/basicInfo/getEntSearchResult';
+            let urls = this.$API.url +'/basicInfo/getEntSearchResult';
             let reqParams = {
                 "pageNumber" : this.currentPageNum,
                 "pageSize" : this.pageSize,
@@ -302,7 +301,7 @@ import dataUrl  from  '../../../static/js/urls.json'
                 });
             });
           }else{
-            let urls = dataUrl.url +'/regionInfo/getBasicByAll';
+            let urls = this.$API.url +'/regionInfo/getBasicByAll';
             let reqParams = {
                 "pageNumber" : this.currentPageNum,
                 "pageSize" : this.pageSize,

@@ -67,7 +67,6 @@
 </template>
 <script>
 import chinaL from './chinaL';
-import dataUrl  from  '../../../static/js/urls.json';
 const cityOptions = ['东北', '华东', '西北','华中','华南','西南','华北','港澳台'];
 const industryOptions = ['金融','制造','工程承包','房地产','资源与能源','其他'];
 const OrderOptions = ['中信控股有限责任公司','中信云网有限公司','中信银行股份有限公司'];
@@ -140,35 +139,6 @@ export default {
         //监听大区,行业的数据变化
         this.regionsChange();
         this.IndustryChange();
-      // this.RegionsChange = (this.regionItem).join(",");
-      // this.industryChange = (this.industryMenu).join(",");
-      // this.orderChange = (this.orderMenu).join(",");
-      // //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
-      // let urls = dataUrl.url +'/regionInfo/getBasicCountAreaNameByCompanyName';
-      // var qs = require('qs');
-      // //. 通过参数来限制数据的多少。"areaName": "华北"  industryName firstCompany.   flage ="2"
-      // let config = {
-      //     headers: {
-      //         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      //     }
-      // };
-      // let reqParams = {
-      //       "countryNam" : this.mapName,
-      //       "enterpriseId": this.enterpriseId,
-      //       "flage": "1",
-      //       "areaName": this.RegionsChange,
-      //       "industryName": this.industryChange,
-      //       "firstCompany" : this.orderChange
-      // };
-      // this.axios.post(urls,qs.stringify(reqParams),config)
-      //   .then((res) => {
-      //       this.regionTotal = res.data;
-      //   }, (err) => {
-      //     this.$message({
-      //         message: '数据请求失败!',
-      //         center: true
-      //     });
-      //   })
       }
     },
     regionsChange (){
@@ -177,7 +147,7 @@ export default {
       this.industryChange = (this.industryMenu).join(",");
       this.orderChange = (this.orderMenu).join(",");
       //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
-      let urls = dataUrl.url +'/regionInfo/getBasicCountAreaNameByCompanyName';
+      let urls = this.$API.url +'/regionInfo/getBasicCountAreaNameByCompanyName';
       var qs = require('qs');
       //. 通过参数来限制数据的多少。"areaName": "华北"  industryName firstCompany.   flage ="2"
       let config = {
@@ -258,41 +228,12 @@ export default {
     handleCheckAllIndustryMenuChange (val){
       this.industryMenu = val ? industryOptions : [];
       this.isIndustry = false;
-       if(val == false){
+      if(val == false){
         this.industryMenuTotal = [];
       }else{
         //监听大区,行业的数据变化
         this.regionsChange();
         this.IndustryChange();
-      // this.RegionsChange = (this.regionItem).join(",");
-      // this.industryChange = (this.industryMenu).join(",");
-      // this.orderChange = (this.orderMenu).join(",");
-      // //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
-      // let urls = dataUrl.url +'/regionInfo/getBasicCountIndustryNameByEntNameAndContinentNameAndCountryNam';
-      // var qs = require('qs');
-      // // 通过参数来限制数据的多少 "areaName": "华北"  industryName firstCompany.   flage ="2"
-      // let config = {
-      //     headers: {
-      //         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      //     }
-      // };
-      // let reqParams = {
-      //       "mapName" : this.mapName,
-      //       "enterpriseId": this.enterpriseId,
-      //       "flage": "1",
-      //       "areaName": this.RegionsChange,
-      //       "industryName": this.industryChange,
-      //       "firstCompany" : this.orderChange
-      // };
-      // this.axios.post(urls,qs.stringify(reqParams),config)
-      //   .then((res) => {
-      //       this.industryMenuTotal = res.data;
-      //   }, (err) => {
-      //     this.$message({
-      //         message: '数据请求失败!',
-      //         center: true
-      //     });
-      //   })
       }
     },
     IndustryChange (){
@@ -301,7 +242,7 @@ export default {
       this.industryChange = (this.industryMenu).join(",");
       this.orderChange = (this.orderMenu).join(",");
       //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
-      let urls = dataUrl.url +'/regionInfo/getBasicCountIndustryNameByEntNameAndContinentNameAndCountryNam';
+      let urls = this.$API.url +'/regionInfo/getBasicCountIndustryNameByEntNameAndContinentNameAndCountryNam';
       var qs = require('qs');
       let config = {
           headers: {
@@ -430,7 +371,7 @@ export default {
         //调用筛选地区，行业的筛选内容
         this.regionsChange();
         this.IndustryChange();
-        let urls = dataUrl.url +'/entMenuInfo/getMapEntMenuInfo';
+        let urls = this.$API.url +'/entMenuInfo/getMapEntMenuInfo';
         let config = {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -478,7 +419,7 @@ export default {
         };
         // flage = 1 ---> 右导航栏，否则 flage为2
         // 国内地图
-        let urls = dataUrl.url +'/regionInfo/getBasicCountAreaNameByCompanyName';
+        let urls = this.$API.url +'/regionInfo/getBasicCountAreaNameByCompanyName';
         let params = {
           "areaName": regionItem,
           "industryName": industryMenu,
@@ -507,7 +448,7 @@ export default {
     },
     regionSearch (){
       this.filterReset();
-      let Url = dataUrl.url +'/regionInfo/getDomSearchInfo';
+      let Url = this.$API.url +'/regionInfo/getDomSearchInfo';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'

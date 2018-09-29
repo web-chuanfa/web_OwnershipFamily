@@ -9,7 +9,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['industry','order','param'],
   data () {
@@ -75,7 +74,7 @@ export default {
             }
         };
         //统计大区分布
-        let urls = dataUrl.url +'/basicInfo/getDomSearchInfo';
+        let urls = this.$API.url +'/basicInfo/getDomSearchInfo';
         //向后台参数
         let reqParams = {
             "addressName": this.addressName,
@@ -89,7 +88,7 @@ export default {
         })
       }else{
         //统计大区省份
-        let urls = dataUrl.url +'/basicInfo/getBasicByAllCountprovinceName';
+        let urls = this.$API.url +'/basicInfo/getBasicByAllCountprovinceName';
         var qs = require('qs');
         //向后台参数
         let reqParams = {
@@ -117,14 +116,14 @@ export default {
         this.imgName = this.areaName;
       }
       //. 背景图。entMenuInfo/getMapImgUrl   imgName = "东北" country="china";
-      let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+      let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
       let Params = {
             "imgName" : this.imgName,
             "country": "china"
       };
       this.axios.post(urlBgs,qs.stringify(Params),config)
         .then((res) => {
-          this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+          this.imgUrl =  this.$API.url + res.data[0].IMGURL;
           this.className = res.data[0].CLASSNAME
         }, (err) => {
           

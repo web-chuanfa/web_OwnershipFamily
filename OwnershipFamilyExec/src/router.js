@@ -9,6 +9,7 @@ import WorldL from './components/tabContent/worldL'
 import Table from './components/table/table'
 import detailTable from './components/table/detailTable'
 import vTable from './components/table/vTable'
+import vDetailTable from './components/table/vDetailTable'
 import Province from './components/region/province'
 import AllViewChina from './components/region/allViewChina'
 import vChina from './components/region/vChina'
@@ -82,6 +83,10 @@ export default new Router({
         {
             path: '/vTable',
             component: vTable
+        },
+        {
+            path: '/vDetailTable',
+            component: vDetailTable
         },
         {
             path: '/infoDetail/',

@@ -51,7 +51,6 @@
 </div>
 </template>
 <script>
-import dataUrl  from  '../../static/js/urls.json'
 export default {
   name:"home",
   data () {
@@ -127,7 +126,7 @@ export default {
     },
     loadAll() {
       //一开始加载后台数据
-      let urls = dataUrl.url +'/basicInfo/getRealtimeQueryEntName1';
+      let urls = this.$API.url +'/basicInfo/getRealtimeQueryEntName1';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -207,7 +206,7 @@ export default {
       } 
     },
     searchInfo() {
-      let urls = dataUrl.url +'/basicInfo/getEntSearchResult';
+      let urls = this.$API.url +'/basicInfo/getEntSearchResult';
       var qs = require('qs');
       let reqParams = {
           "searchType" : this.reqParams.searchType,
@@ -321,7 +320,7 @@ export default {
     },
     recentClear (){
       //清空数据  /browseHistoryInfo/clearHistoryRecords
-      let urls = dataUrl.url +'/browseHistoryInfo/clearHistoryRecords';
+      let urls = this.$API.url +'/browseHistoryInfo/clearHistoryRecords';
       var qs = require('qs');
       let config = {
           headers: {
@@ -343,7 +342,7 @@ export default {
       if(this.historyParams.pageNumber > this.historyParams.pages){
         this.historyParams.pageNumber = 1;
       }
-      let urls = dataUrl.url +'/browseHistoryInfo/queryhistory';
+      let urls = this.$API.url +'/browseHistoryInfo/queryhistory';
       var qs = require('qs');
       let params = {
         "pageNumber" : this.historyParams.pageNumber,
@@ -375,10 +374,12 @@ export default {
     }
   },
   mounted () {
+    console.log(this.$API.url)
     // 搜索模糊查询--加载时
     this.loadAll();
     // 历史记录 /browseHistoryInfo/queryhistory?pageNumber=1&pageSize=5
-    let urls = dataUrl.url +'/browseHistoryInfo/queryhistory';
+    let urls = this.$API.url +'/browseHistoryInfo/queryhistory';
+    console.log(urls)
     var qs = require('qs');
     let params = {
         "pageNumber" : this.historyParams.pageNumber,

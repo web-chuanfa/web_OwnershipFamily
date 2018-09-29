@@ -8,9 +8,7 @@
     </div>
   </div>
 </template>
-
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['filter','region','industry','order','flage','param'],
   data () {
@@ -63,7 +61,7 @@ export default {
       };
       //判断是否点击地区搜索
       if(this.$route.query.flage == 2){
-        let Url = dataUrl.url +'/regionInfo/getDomSearchInfo';
+        let Url = this.$API.url +'/regionInfo/getDomSearchInfo';
         // flage  = 3
         let params = {
             "addressName": this.addressName,
@@ -84,7 +82,7 @@ export default {
             });
         });
         }else{
-          let urls = dataUrl.url +'/regionInfo/getBasicCountProvinceNameByCompanyNameAndIndustryName';
+          let urls = this.$API.url +'/regionInfo/getBasicCountProvinceNameByCompanyNameAndIndustryName';
           let reqParams = {
                 "areaName" : this.areaName,
                 "addressName" : this.addressName,
@@ -104,7 +102,7 @@ export default {
           });
       }
       // 背景图   imgName = "东北"
-      let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+      let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
       //判断是否进行过地区搜索
       if(this.$route.query.addressName != undefined){
           this.imgName = this.$route.query.addressName
@@ -117,7 +115,7 @@ export default {
       };
       this.axios.post(urlBgs,qs.stringify(Params),config)
         .then((res) => {
-          this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+          this.imgUrl =  this.$API.url + res.data[0].IMGURL;
           this.className = res.data[0].CLASSNAME
         }, (err) => {
           this.$message({

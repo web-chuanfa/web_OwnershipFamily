@@ -67,7 +67,6 @@
 </template>
 <script>
 import worldL from './worldL';
-import dataUrl  from  '../../../static/js/urls.json';
 const cityOptions = ['欧洲', '亚洲', '非洲','南美洲','大洋洲','北美洲'];
 const industryOptions = ['金融','制造','工程承包','房地产','资源与能源','其他'];
 const OrderOptions = ['中信控股有限责任公司','中信云网有限公司','中信银行股份有限公司'];
@@ -146,7 +145,7 @@ export default {
       this.continentChange = (this.continentItem).join(",");
       this.industryChange = (this.industryMenu).join(",");
       this.orderChange = (this.orderMenu).join(",");
-      let urls = dataUrl.url +'/regionInfo/getBasicCountContinentNameByEntName';
+      let urls = this.$API.url +'/regionInfo/getBasicCountContinentNameByEntName';
       var qs = require('qs');
       let config = {
           headers: {
@@ -197,6 +196,7 @@ export default {
       let checkedCount = value.length;
       this.continentCheckAll = checkedCount === this.continentList.length;
       this.isContinent = checkedCount > 0 && checkedCount < this.continentList.length;
+      //监听大洲，行业的数据变化
       this.continentListenChange();
       this.industryListenChange();
     },
@@ -206,7 +206,7 @@ export default {
       if(val == false){
         this.industryMenuTotal = [];
       }else{
-        //监听大洲与行业
+        //监听大洲，行业的数据变化
         this.continentListenChange();
         this.industryListenChange();
       }
@@ -228,7 +228,7 @@ export default {
       this.industryChange = (this.industryMenu).join(",");
       this.orderChange = (this.orderMenu).join(",");
       //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
-      let urls = dataUrl.url +'/regionInfo/getBasicCountIndustryNameByEntNameAndContinentNameAndCountryNam';
+      let urls = this.$API.url +'/regionInfo/getBasicCountIndustryNameByEntNameAndContinentNameAndCountryNam';
       var qs = require('qs');
       let config = {
           headers: {
@@ -321,7 +321,7 @@ export default {
         //调用筛选地区，行业的筛选内容
         this.continentListenChange();
         this.industryListenChange();
-        let urls = dataUrl.url +'/entMenuInfo/getMapEntMenuInfo';
+        let urls = this.$API.url +'/entMenuInfo/getMapEntMenuInfo';
         let config = {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -368,7 +368,7 @@ export default {
           filter: "1"
         }
         // 世界地图
-        let urls = dataUrl.url +'/regionInfo/getBasicCountContinentNameByEntName';
+        let urls = this.$API.url +'/regionInfo/getBasicCountContinentNameByEntName';
         let params = {
           "continentName": this.continent,
           "industryName": this.industry,
@@ -399,7 +399,7 @@ export default {
     regionSearch (){
       this.filterReset();
       //判断搜索市国内，还是世界
-      let Url = dataUrl.url +'/regionInfo/getDomSearchInfoWorld';
+      let Url = this.$API.url +'/regionInfo/getDomSearchInfoWorld';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'

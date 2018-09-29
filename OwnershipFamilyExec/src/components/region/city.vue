@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['filter','region','industry','order','flage','param'],
   data () {
@@ -80,7 +79,7 @@ export default {
        var qs = require('qs');
        this.filterParam = that.param;
       if(this.$route.query.flage == 3){
-        let Url = dataUrl.url +'/regionInfo/getDomSearchInfo';
+        let Url = this.$API.url +'/regionInfo/getDomSearchInfo';
         let params = {
             "addressName": this.$route.query.addressName,
             "flage": "3",
@@ -99,7 +98,7 @@ export default {
       }else{
         this.areaName = this.$route.query.areaName;
         this.addressName = this.$route.query.addressName;
-        let urls = dataUrl.url +'/regionInfo/getBasicCountcityNameByAll';
+        let urls = this.$API.url +'/regionInfo/getBasicCountcityNameByAll';
         let reqParams = {
               "areaName" : this.areaName,
               "addressName" : this.addressName,
@@ -126,14 +125,14 @@ export default {
       }else{
         this.imgName = this.$route.query.addressName;
       }
-      let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+      let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
       let Params = {
             "imgName" : this.imgName,
             "country": "china"
       };
       this.axios.post(urlBgs,qs.stringify(Params),config)
         .then((res) => {
-          this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+          this.imgUrl =  this.$API.url + res.data[0].IMGURL;
           this.className = res.data[0].CLASSNAME
         }, (err) => {
           

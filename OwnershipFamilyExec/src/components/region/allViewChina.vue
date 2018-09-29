@@ -26,7 +26,6 @@
 <script>
 import china from './vChina';
 import world from './vWorld';
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   data () {
     return {

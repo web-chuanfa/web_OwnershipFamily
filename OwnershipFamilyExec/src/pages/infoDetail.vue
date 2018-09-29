@@ -42,7 +42,6 @@
 import basicInfo from '../components/tabContent/basicInfo';
 import stockInfo from '../components/tabContent/stockInfo';
 import regionSubstance from '../components/tabContent/regionSubstance';
-import dataUrl  from  '../../static/js/urls.json';
 export default {
   data () {
     return {
@@ -158,7 +157,7 @@ export default {
     },
     loadAll() {
       //一开始加载后台数据
-      let urls = dataUrl.url +'/basicInfo/getRealtimeQueryEntName1';
+      let urls = this.$API.url +'/basicInfo/getRealtimeQueryEntName1';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -205,7 +204,7 @@ export default {
       }
     },
     firmSearch (){
-      let urls = dataUrl.url +'/basicInfo/getEntSearchResult';
+      let urls = this.$API.url +'/basicInfo/getEntSearchResult';
       var qs = require('qs');
       let reqParams = {
           "keyword" : this.reqParams.keyword

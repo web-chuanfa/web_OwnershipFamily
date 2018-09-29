@@ -65,7 +65,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
   export default {
     data() {
       return {
@@ -113,7 +112,7 @@ import dataUrl  from  '../../../static/js/urls.json'
         };
         //判断是否国内 与 世界
         if(!this.$route.query.continentName){
-            let urls = dataUrl.url +'/regionInfo/getBasicByAll';
+            let urls = this.$API.url +'/regionInfo/getBasicByAll';
             this.axios.post(urls,qs.stringify(reqParams),config)
               .then((res) => {
                 this.tableData3 = res.data.rows;
@@ -125,7 +124,7 @@ import dataUrl  from  '../../../static/js/urls.json'
                 });
             });
             }else{
-              let urls = dataUrl.url +'/regionInfo/getBasicCompanyByAll';
+              let urls = this.$API.url +'/regionInfo/getBasicCompanyByAll';
               this.axios.post(urls,qs.stringify(reqParams),config)
                 .then((res) => {
                   this.tableData3 = res.data.rows;
@@ -136,7 +135,7 @@ import dataUrl  from  '../../../static/js/urls.json'
                     center: true
                   });
               });
-          }   
+        }  
       },
       handle (row){
         //表格详情页--跳转到基本信息   row.entname （公司名）
@@ -158,7 +157,7 @@ import dataUrl  from  '../../../static/js/urls.json'
             }
         };
         var qs = require('qs');
-        let urls = dataUrl.url +'/regionInfo/getBasicByAll';
+        let urls = this.$API.url +'/regionInfo/getBasicByAll';
         let reqParams = {
             "pageNumber" : this.currentPageNum,
             "pageSize" : this.pageSize,

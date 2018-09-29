@@ -38,7 +38,7 @@
                     align="center">
                   </el-table-column>
                   <el-table-column
-                    prop="name"
+                    prop="fr_name"
                     label="法定代表人"
                     width="100"
                     align="center">
@@ -67,7 +67,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
   export default {
     props:['flage'],
     data() {
@@ -89,22 +88,7 @@ import dataUrl  from  '../../../static/js/urls.json'
     watch: {
       schfilter: function(val, oldVal){
         this.tableData3 = this.tableData3.filter( item => (~item.entname.indexOf(val)));
-      },
-      // region (newVal,oldVal){
-      //   let that = this;
-      //   that.region = newVal;
-      //   this.handler();
-      // },
-      // order (newVal,oldVal){
-      //   let that = this;
-      //   that.order = newVal;
-      //   this.handler();
-      // },
-      // industry (newVal,oldVal){
-      //   let that = this;
-      //   that.industry = newVal;
-      //   this.handler();
-      // }
+      }
     },
     methods: {
       handleSizeChange(val) {
@@ -133,7 +117,7 @@ import dataUrl  from  '../../../static/js/urls.json'
               "areaName" : this.$route.query.areaName
         }
         if(this.$route.query.getSearchResult ==1){
-          let urls = dataUrl.url +'/basicInfo/getEntSearchResult';
+          let urls = this.$API.url +'/basicInfo/getEntSearchResult';
           this.axios.post(urls,qs.stringify(reqParams),config)
             .then((res) => {
               this.tableData3 = res.data.rows;
@@ -145,7 +129,7 @@ import dataUrl  from  '../../../static/js/urls.json'
               });
             });
         }else if(this.ProvinceName != undefined){
-          let urls = dataUrl.url +'/basicInfo/getBasicByAllProvinceName';
+          let urls = this.$API.url +'/basicInfo/getBasicByAllProvinceName';
           this.axios.post(urls,qs.stringify(reqParams),config)
             .then((res) => {
               this.tableData3 = res.data.rows;
@@ -157,7 +141,7 @@ import dataUrl  from  '../../../static/js/urls.json'
               });
             });
         }else if(this.$route.query.addressName != undefined){
-          let urls = dataUrl.url +'/basicInfo/getBasicByAllProvinceName';
+          let urls = this.$API.url +'/basicInfo/getBasicByAllProvinceName';
           this.axios.post(urls,qs.stringify(reqParams),config)
             .then((res) => {
               this.tableData3 = res.data.rows;
@@ -170,7 +154,7 @@ import dataUrl  from  '../../../static/js/urls.json'
           });
         }else{
           //getBasicIndustryNameByAll  getBasicByAllProvinceName
-          let urls = dataUrl.url +'/basicInfo/getBasicIndustryNameByAll';
+          let urls = this.$API.url +'/basicInfo/getBasicIndustryNameByAll';
           this.axios.post(urls,qs.stringify(reqParams),config)
             .then((res) => {
               this.tableData3 = res.data.rows;
@@ -209,7 +193,7 @@ import dataUrl  from  '../../../static/js/urls.json'
           if(!this.$route.query.continentName){
             //国内
             this.ProvinceName = this.$route.query.provinceName;
-            let urls = dataUrl.url +'/basicInfo/getBasicByAllProvinceName';
+            let urls = this.$API.url +'/basicInfo/getBasicByAllProvinceName';
             let reqParams = {
                 "pageNumber" : this.currentPageNum,
                 "pageSize" : this.pageSize,
@@ -231,10 +215,9 @@ import dataUrl  from  '../../../static/js/urls.json'
             });
           }else{
             // 世界大洲 basicInfo/getBasicByAll
-            // this.continentName = this.$route.query.continentName;
             this.entName = this.$route.query.firmName;
             this.countryNam = this.$route.query.countryNam;
-            let urls = dataUrl.url +'/basicInfo/getBasicIndustryNameByAll';
+            let urls = this.$API.url +'/basicInfo/getBasicIndustryNameByAll';
             let params = {
                 "pageNumber" : this.currentPageNum,
                 "pageSize" : this.pageSize,
@@ -256,7 +239,7 @@ import dataUrl  from  '../../../static/js/urls.json'
             });
           }
         }else{
-          let urls = dataUrl.url +'/basicInfo/getEntSearchResult';
+          let urls = this.$API.url +'/basicInfo/getEntSearchResult';
           let seParams = {
               "pageNumber" : this.currentPageNum,
               "pageSize" : this.pageSize,

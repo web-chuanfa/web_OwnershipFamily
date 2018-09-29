@@ -4,6 +4,9 @@ import ElementUI from 'element-ui'
 import $ from 'jquery'
 import axios from 'axios';
 
+import API from './assets/js/api.js'
+Vue.prototype.$API = API;
+
 Vue.use(ElementUI)
 import 'element-ui/lib/theme-chalk/index.css'
 

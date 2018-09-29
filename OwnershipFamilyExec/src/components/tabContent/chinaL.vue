@@ -12,7 +12,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['filter','region','industry','order','flage'],
   data () {
@@ -67,7 +66,7 @@ export default {
         this.filterParam = params;
       });
       //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
-      let urls = dataUrl.url +'/regionInfo/getBasicCountAreaNameByCompanyName';
+      let urls = this.$API.url +'/regionInfo/getBasicCountAreaNameByCompanyName';
       var qs = require('qs');
       //. 通过参数来限制数据的多少。"areaName": "华北"  industryName firstCompany.   flage ="2"
       let config = {
@@ -134,7 +133,7 @@ export default {
             }
         };
         //统计大区分布
-        let urls = dataUrl.url +'/regionInfo/getDomSearchInfo';
+        let urls = this.$API.url +'/regionInfo/getDomSearchInfo';
         //向后台参数
         let reqParams = {
             "addressName": this.$route.query.addressName,

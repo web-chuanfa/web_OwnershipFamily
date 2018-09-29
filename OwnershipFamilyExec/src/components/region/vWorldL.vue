@@ -12,7 +12,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['filter','continent','industry','order'],
   data () {
@@ -59,7 +58,7 @@ export default {
       eventBus.$on('todo', (params) => {
         this.filterParam = params;
       });
-      let urls = dataUrl.url +'/basicInfo/getBasicByAllContinentName';
+      let urls = this.$API.url +'/basicInfo/getBasicByAllContinentName';
       var qs = require('qs');
       //. 通过参数来限制数据的多少
       let config = {
@@ -106,7 +105,7 @@ export default {
         })
       }else{
         //统计大洲分布
-        let urls = dataUrl.url +'/basicInfo/getDomSearchInfoWorld';
+        let urls = this.$API.url +'/basicInfo/getDomSearchInfoWorld';
         //向后台参数
         let reqParams = {
             "addressName": this.$route.query.addressName,

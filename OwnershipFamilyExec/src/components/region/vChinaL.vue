@@ -12,7 +12,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['filter','region','industry','order'],
   data () {
@@ -81,7 +80,7 @@ export default {
               }
         };
         //统计大区分布
-        let urls = dataUrl.url +'/basicInfo/getBasicByCountprovinceName';
+        let urls = this.$API.url +'/basicInfo/getBasicByCountprovinceName';
         //向后台参数
         let reqParams = {
             "mapName" : this.mapName,
@@ -109,7 +108,7 @@ export default {
               }
         };
         //统计大区分布
-        let urls = dataUrl.url +'/basicInfo/getBasicByCountprovinceName';
+        let urls = this.$API.url +'/basicInfo/getBasicByCountprovinceName';
         //向后台参数
         let reqParams = {
             "mapName" : this.mapName,
@@ -140,7 +139,7 @@ export default {
               }
         };
         //统计大区分布
-        let urls = dataUrl.url +'/basicInfo/getDomSearchInfo';
+        let urls = this.$API.url +'/basicInfo/getDomSearchInfo';
         //向后台参数
         let reqParams = {
             "addressName": this.$route.query.addressName,

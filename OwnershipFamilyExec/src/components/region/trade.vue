@@ -9,7 +9,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   data () {
     return {
@@ -42,7 +41,7 @@ export default {
   mounted () {
     this.entName = this.$route.query.firmName;
     console.log(this.entName)
-  let urls = dataUrl.url +'/regionInfo/getBasicCountIndustryNameByEntNameAndContinentNameAndCountryNam';
+  let urls = this.$API.url +'/regionInfo/getBasicCountIndustryNameByEntNameAndContinentNameAndCountryNam';
     var qs = require('qs');
     let reqParams = {
           "continentName" : this.$route.query.continentName,
@@ -61,14 +60,14 @@ export default {
         
       })
      // 显示背景图--接口
-    let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+    let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
     //判断是否进行搜索过
     let Params = {
         "imgName" : this.$route.query.countryNam
     };
     this.axios.post(urlBgs,qs.stringify(Params),config)
       .then((res) => {
-        this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+        this.imgUrl =  this.$API.url + res.data[0].IMGURL;
         this.className = res.data[0].CLASSNAME
       }, (err) => {
         

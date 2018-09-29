@@ -9,7 +9,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['flage','continent','industry','order'],
   data () {
@@ -63,7 +62,7 @@ export default {
     },
     handler (){
       let that = this;
-      let urls = dataUrl.url +'/basicInfo/getBasicCountIndustryNameByAll';
+      let urls = this.$API.url +'/basicInfo/getBasicCountIndustryNameByAll';
       var qs = require('qs');
       let config = {
           headers: {
@@ -76,7 +75,7 @@ export default {
       if(this.$route.query.flage == 3){
         //地区搜索--省份时调用的模块
         //统计大洲分布
-        let urls = dataUrl.url +'/basicInfo/getDomSearchInfoWorld';
+        let urls = this.$API.url +'/basicInfo/getDomSearchInfoWorld';
         //向后台参数
         let reqParams = {
             "addressName": this.addressName,
@@ -108,14 +107,14 @@ export default {
       }else{
         this.imgName = this.$route.query.countryNam;
       }
-      let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+      let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
       let Params = {
           "imgName" : this.imgName,
           "country": "world"
       };
       this.axios.post(urlBgs,qs.stringify(Params),config)
         .then((res) => {
-          this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+          this.imgUrl =  this.$API.url + res.data[0].IMGURL;
           this.className = res.data[0].CLASSNAME
         }, (err) => {
           

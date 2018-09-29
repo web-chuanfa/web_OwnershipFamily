@@ -25,6 +25,8 @@
                         <el-checkbox-group v-model="continentItem" @change="handleCheckedContinentChange">
                           <el-checkbox-button v-for="item in continentList" :label="item" :key="item">{{item}}</el-checkbox-button>
                         </el-checkbox-group>
+                        <p class="regionTotal" v-if="continentItem.length !=0">已选：<a v-for="(item, index) in continentTotal"><span>{{ item.continent_name }}({{ item.count }})</span></a>
+                        </p>
                       </div>
                       <div class="checkbox-group-module">
                         <h6 style="margin-bottom: 0rem;">按行业</h6>
@@ -32,6 +34,8 @@
                         <el-checkbox-group v-model="industryMenu" @change="handleCheckedIndustryChange">
                           <el-checkbox-button v-for="item in industryMenuList" :label="item" :key="item">{{item}}</el-checkbox-button>
                         </el-checkbox-group>
+                        <p class="regionTotal" v-if="industryMenu.length !=0">已选：<a v-for="(item, index) in industryMenuTotal"><span>{{ item.industry_name }}({{ item.count }})</span></a>
+                        </p>
                       </div>
                       <div class="checkbox-group-module borderB0">
                         <h6 style="margin-bottom: 0rem;">第一级公司</h6>
@@ -41,7 +45,7 @@
                         </el-checkbox-group>
                       </div>
                       <div class="handle clear">
-                        <button class="filter_reset" @click="filterReset">筛选重置</button>
+                        <button class="filter_reset" @click="detailList">查看列表</button>
                         <button class="filter_confirm handle_filter_active" @click="continentData">确认选择</button>
                       </div>
                     </div>
@@ -65,7 +69,6 @@
 </template>
 <script>
 import vWorldL from './vWorldL';
-import dataUrl  from  '../../../static/js/urls.json';
 const continentOptions = ['亚洲', '非洲', '欧洲','大洋洲','北美洲','南美洲'];
 const industryOptions = ['金融','制造','工程承包','房地产','资源与能源','其他'];
 const OrderOptions = ['中信控股有限责任公司','中信云网有限公司','中信银行股份有限公司'];
@@ -99,7 +102,13 @@ export default {
         industry: "",
         order: "",
         filter: "2"
-      }
+      },
+      continentTotal: "",
+      continentChange: "",
+      industryChange: "",
+      orderChange: "",
+      industryMenuTotal: "",
+      continentNameFlag: ""
     }
   },
   watch: {
@@ -114,11 +123,121 @@ export default {
     handleContinentCheckAllChange(val) {
       this.continentItem = val ? continentOptions : [];
       this.isContinent = false;
+      if(val == false){
+        this.continentTotal = [];
+      }else{
+        //监听大洲与行业
+        this.continentListenChange();
+        this.industryListenChange();
+      }
     },
     handleCheckedContinentChange(value) {
       let checkedCount = value.length;
       this.continentCheckAll = checkedCount === this.continentList.length;
       this.isContinent = checkedCount > 0 && checkedCount < this.continentList.length;
+      //监听大洲，行业的数据变化
+      this.continentListenChange();
+      this.industryListenChange();
+    },
+    continentListenChange (){
+      //监听大洲的数据变化
+      this.continentChange = (this.continentItem).join(",");
+      this.industryChange = (this.industryMenu).join(",");
+      this.orderChange = (this.orderMenu).join(",");
+      let urls = this.$API.url +'/basicInfo/getBasicByAllContinentName';
+      var qs = require('qs');
+      let config = {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          }
+      };
+      //判断是否进入国家页面
+      if(this.$route.query.continentName != undefined){
+        // 在国家页面的时候执行
+          let reqParams = {
+            "flage": "1",
+            "continentName": this.$route.query.continentName,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+          };
+          this.axios.post(urls,qs.stringify(reqParams),config)
+            .then((res) => {
+                this.continentTotal = res.data;
+                console.log(this.continentTotal)
+            }, (err) => {
+              this.$message({
+                  message: '数据请求失败!',
+                  center: true
+              });
+          })
+      }else{
+        //在大洲页面传的参数
+        let reqParams = {
+            "flage": "1",
+            "continentName": this.continentChange,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+        };
+        this.axios.post(urls,qs.stringify(reqParams),config)
+        .then((res) => {
+            this.continentTotal = res.data;
+        }, (err) => {
+          this.$message({
+              message: '数据请求失败!',
+              center: true
+          });
+        })
+      }
+    },
+    industryListenChange (){
+      //监听行业的数据变化
+      this.continentChange = (this.continentItem).join(",");
+      this.industryChange = (this.industryMenu).join(",");
+      this.orderChange = (this.orderMenu).join(",");
+      //需要 点击选择的时候与中国地图同一个接口，用不同的参数来设置的显示的条件
+      let urls = this.$API.url +'/basicInfo/getBasicCountIndustryNameByAll';
+      var qs = require('qs');
+      let config = {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          }
+      };
+      //判断是否进入省份页面
+      if(this.$route.query.continentName != undefined){
+        // 在国家页面的时候执行
+          let reqParams = {
+            "flage": "1",
+            "continentName": this.$route.query.continentName,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+          };
+          this.axios.post(urls,qs.stringify(reqParams),config)
+            .then((res) => {
+                this.industryMenuTotal = res.data;
+            }, (err) => {
+              this.$message({
+                  message: '数据请求失败!',
+                  center: true
+              });
+          });
+      }else{
+        //在大洲页面传的参数
+        let reqParams = {
+            "flage": "1",
+            "continentName": this.continentChange,
+            "industryName": this.industryChange,
+            "firstCompany" : this.orderChange
+        };
+        this.axios.post(urls,qs.stringify(reqParams),config)
+        .then((res) => {
+            this.industryMenuTotal = res.data;
+        }, (err) => {
+          this.$message({
+              message: '数据请求失败!',
+              center: true
+          });
+        });
+      }
     },
     handleCheckAllIndustryMenuChange (val){
       this.industryMenu = val ? industryOptions : [];
@@ -128,10 +247,20 @@ export default {
       let checkedCount = value.length;
       this.industryCheckAll = checkedCount === this.industryMenuList.length;
       this.isIndustry = checkedCount > 0 && checkedCount < this.industryMenuList.length;
+      //监听大洲，行业的数据变化
+      this.continentListenChange();
+      this.industryListenChange();
     },
     handleCheckAllOrderMenuChange (val){
       this.orderMenu = val ? OrderOptions : [];
       this.isOrder = false;
+      if(val == false){
+        this.industryMenuTotal = [];
+      }else{
+        //监听大洲，行业的数据变化
+        this.continentListenChange();
+        this.industryListenChange();
+      }
     },
     handleCheckedOrderChange (value){
       let checkedCount = value.length;
@@ -158,6 +287,30 @@ export default {
         })
       }
     },
+    detailList (){
+      let continentItem = (this.continentItem).join(","),
+          industryMenu = (this.industryMenu).join(","),
+          orderMenu = (this.orderMenu).join(",");
+        this.continent = continentItem;
+        this.industry = industryMenu;
+        this.order = orderMenu;
+      //判断是否大区进入省份，城市页面
+      if(this.$route.query.continentName != undefined){
+        this.continentNameFlag = this.$route.query.continentName;
+      }else{
+        this.continentNameFlag = this.continent;
+      }
+      this.$router.push({
+          path:"/vDetailTable/",
+          query:{
+            page: this.page,
+            firmName: this.firmName,
+            continentName: this.continentNameFlag,
+            industry: this.industry,
+            order: this.order
+          }
+      })
+    },
     showWorldToggle (){
       //重置按地区 按行业 第一级公司
       this.orderMenu = [''];
@@ -169,7 +322,7 @@ export default {
         this.isDisplay = false;
       }
       //按地图查询菜单（世界）
-      let urls = dataUrl.url +'/entMenuInfo/getMapEntMenuInfo';
+      let urls = this.$API.url +'/entMenuInfo/getMapEntMenuInfo';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -218,7 +371,7 @@ export default {
           filter: "1"
         }
       //世界-统计各国家的数量
-      let worldurls = dataUrl.url +'/basicInfo/getBasicByAllContinentName';
+      let worldurls = this.$API.url +'/basicInfo/getBasicByAllContinentName';
       // 大洲：continentName || 行业：industryName || 第一级公司：firstCompany
       let reqParams = {
         "continentName": this.continent,
@@ -253,7 +406,7 @@ export default {
     regionSearch (){
       this.filterReset();
       //判断搜索市国内，还是世界
-      let Url = dataUrl.url +'/basicInfo/getDomSearchInfoWorld';
+      let Url = this.$API.url +'/basicInfo/getDomSearchInfoWorld';
       let config = {
           headers: {
               'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'

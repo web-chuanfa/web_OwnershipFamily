@@ -9,7 +9,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['param','flage'],
   data () {
@@ -66,7 +65,7 @@ export default {
       if(this.$route.query.flage == 3){
         //地区搜索--国家时调用的模块
         //统计大洲分布
-        let urls = dataUrl.url +'/basicInfo/getDomSearchInfoWorld';
+        let urls = this.$API.url +'/basicInfo/getDomSearchInfoWorld';
         //向后台参数
         let reqParams = {
             "addressName": this.addressName,
@@ -82,7 +81,7 @@ export default {
             });
         })
       }else{
-        let urls = dataUrl.url +'/regionInfo/getBasicCountCountryNamByEntNameAndContinentName';
+        let urls = this.$API.url +'/regionInfo/getBasicCountCountryNamByEntNameAndContinentName';
         var qs = require('qs');
         let reqParams = {
               "continentName" : this.continentName,
@@ -112,14 +111,14 @@ export default {
         // 显示背景图--接口
         this.imgName = this.continentName;
       }
-      let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+      let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
         let Params = {
             "imgName" : this.imgName,
             "country": "world"
         };
       this.axios.post(urlBgs,qs.stringify(Params),config)
         .then((res) => {
-          this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+          this.imgUrl =  this.$API.url + res.data[0].IMGURL;
           this.className = res.data[0].CLASSNAME
         }, (err) => {
           this.$message({

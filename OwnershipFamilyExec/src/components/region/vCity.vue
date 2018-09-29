@@ -9,7 +9,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   props:['industry','order','param'],
   data () {
@@ -79,7 +78,7 @@ export default {
             }
         };
         //统计大区分布
-        let urls = dataUrl.url +'/basicInfo/getDomSearchInfo';
+        let urls = this.$API.url +'/basicInfo/getDomSearchInfo';
         //向后台参数
         let reqParams = {
             "addressName": this.$route.query.addressName,
@@ -93,7 +92,7 @@ export default {
         })
       }else{
         //统计大区城市
-        let urls = dataUrl.url +'/basicInfo/getBasicByALLCountCityName';
+        let urls = this.$API.url +'/basicInfo/getBasicByALLCountCityName';
         var qs = require('qs');
         //向后台参数
         let reqParams = {
@@ -117,7 +116,7 @@ export default {
       }
       //判断是否存在
       if(this.$route.query.addressName != undefined){
-        let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+        let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
         var qs = require('qs');
         let Params = {
               "imgName" : this.$route.query.addressName,
@@ -130,14 +129,14 @@ export default {
         };
         this.axios.post(urlBgs,qs.stringify(Params),config)
           .then((res) => {
-            this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+            this.imgUrl =  this.$API.url + res.data[0].IMGURL;
             this.className = res.data[0].CLASSNAME
           }, (err) => {
             
         });
       }else{
         //. 背景图。entMenuInfo/getMapImgUrl   imgName = "东北"
-        let urlBgs = dataUrl.url + '/entMenuInfo/getMapImgUrl';
+        let urlBgs = this.$API.url + '/entMenuInfo/getMapImgUrl';
         var qs = require('qs');
         let config = {
             headers: {
@@ -150,7 +149,7 @@ export default {
         };
         this.axios.post(urlBgs,qs.stringify(Params),config)
           .then((res) => {
-            this.imgUrl =  dataUrl.url + res.data[0].IMGURL;
+            this.imgUrl =  this.$API.url + res.data[0].IMGURL;
             this.className = res.data[0].CLASSNAME
           }, (err) => {
             

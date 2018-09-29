@@ -279,7 +279,6 @@
   </div>
 </template>
 <script>
-import dataUrl  from  '../../../static/js/urls.json'
 export default {
   data () {
     return {
@@ -351,7 +350,7 @@ export default {
             // console.log(e);
       }
       // 新增股东信息，高管
-      let urls = dataUrl.url +'/basicInfo/getBasicInfo';
+      let urls = this.$API.url +'/basicInfo/getBasicInfo';
       var qs = require('qs');
       let reqParams = {
             "enterpriseId" : this.enterpriseId,
@@ -412,7 +411,7 @@ export default {
     sideNav (){
       //左边导航信息
       var qs = require('qs');
-      let url = dataUrl.url +'/EntinvInfo/getEntinvSuperiorAndSubordinateInfo';
+      let url = this.$API.url +'/EntinvInfo/getEntinvSuperiorAndSubordinateInfo';
         let param = {
             "enterpriseId" : this.enterpriseId
         };
@@ -443,7 +442,7 @@ export default {
     investList (){
       //对外投资列表
       var qs = require('qs');
-      let url = dataUrl.url +'/basicInfo/getEntInvestmentInfo';
+      let url = this.$API.url +'/basicInfo/getEntInvestmentInfo';
       let param = {
           "enterpriseId" : this.enterpriseId,
           "enterpriseName" : this.firmName
@@ -468,7 +467,7 @@ export default {
     entexecutives (){
       //高管信息列表
       var qs = require('qs');
-      let url = dataUrl.url +'/basicInfo/getEntexecutivesInfo';
+      let url = this.$API.url +'/basicInfo/getEntexecutivesInfo';
       let param = {
           "enterpriseId" : this.enterpriseId,
           "enterpriseName" : this.firmName
@@ -493,7 +492,7 @@ export default {
     entinSideShareholder (){
       //股东信息列表
       var qs = require('qs');
-      let url = dataUrl.url +'/basicInfo/getEntinSideShareholderInfo';
+      let url = this.$API.url +'/basicInfo/getEntinSideShareholderInfo';
       let param = {
           "enterpriseId" : this.enterpriseId,
           "enterpriseName" : this.firmName
