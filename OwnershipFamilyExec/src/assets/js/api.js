@@ -4,8 +4,8 @@ const domain = window.location.host;
 const protocol = document.location.protocol;
 //获取当前域名
 const API = {
-    'url': protocol + "//" + domain + "/familyTree",
+    'url_test': protocol + "//" + domain + "/familyTree",
     "url_pro": "https://appdata-intra.c.citic/familyTree",
-    "url_test": "http://10.76.3.74:8081/familyTree"
+    "url": "http://10.76.3.74:8081/familyTree"
 }
 export default API;
