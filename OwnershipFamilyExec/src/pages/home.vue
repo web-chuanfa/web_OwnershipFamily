@@ -369,42 +369,43 @@ export default {
         try {
             window.postMessage("http://10.76.3.74:8081/familyTree/index.html#/allViewChina/vWorld/vWorldL");
         } catch(e){
-            console.log(e);
+            // console.log(e);
         }
+    },
+    historyInfo (){
+      // 历史记录
+      let urls = this.$API.url +'/browseHistoryInfo/queryhistory';
+      var qs = require('qs');
+      let params = {
+          "pageNumber" : this.historyParams.pageNumber,
+          "pageSize" : this.historyParams.pageSize
+      };
+      let config = {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          }
+      };
+      this.axios.post(urls, qs.stringify(params),config)
+        .then((res) => {
+          this.historyParams.pages = res.data.pages;
+          this.queryhistory = res.data.rows;
+          //数据请求成功时
+          setTimeout(() => {
+            this.loading = false;
+          }, 1000);
+        }, (err) => {
+          this.loading = false;
+          this.$message({
+            message: '数据请求失败!',
+            center: true
+          });
+      })
     }
   },
   mounted () {
-    console.log(this.$API.url)
     // 搜索模糊查询--加载时
     this.loadAll();
-    // 历史记录 /browseHistoryInfo/queryhistory?pageNumber=1&pageSize=5
-    let urls = this.$API.url +'/browseHistoryInfo/queryhistory';
-    console.log(urls)
-    var qs = require('qs');
-    let params = {
-        "pageNumber" : this.historyParams.pageNumber,
-        "pageSize" : this.historyParams.pageSize
-    };
-    let config = {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        }
-    };
-    this.axios.post(urls, qs.stringify(params),config)
-      .then((res) => {
-        this.historyParams.pages = res.data.pages;
-        this.queryhistory = res.data.rows;
-        //数据请求成功时
-        setTimeout(() => {
-          this.loading = false;
-        }, 1000);
-      }, (err) => {
-        this.loading = false;
-        this.$message({
-          message: '数据请求失败!',
-          center: true
-        });
-    })
+    this.historyInfo();
   }
 }
 </script>
