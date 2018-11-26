@@ -1,7 +1,8 @@
-import Vue from 'vue'
-import router from './router'
-import ElementUI from 'element-ui'
-import $ from 'jquery'
+import Vue from 'vue';
+import router from './router';
+import store from './store';
+import ElementUI from 'element-ui';
+import $ from 'jquery';
 import axios from 'axios';
 
 import API from './assets/js/api.js'
@@ -20,6 +21,7 @@ Vue.prototype.axios = axios;
 new Vue({
     el: '#app',
     router,
+    store,
     components: {
         App
     },

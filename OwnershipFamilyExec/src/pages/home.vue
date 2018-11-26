@@ -32,7 +32,6 @@
           <a>{{ item.entName}}</a>
         </b>
         <span class="index-hot-company" @click="zhugeTrack">换一批</span>
-        <span @click="recentClear" style="display:none;">删除</span>
     </div>
     <!-- 分布区域 -->
     <div class="mapRegion">
@@ -317,25 +316,6 @@ export default {
     historyDetail (item,event){
       this.reqParams.keyword = item;
       this.searchInfo();
-    },
-    recentClear (){
-      //清空数据  /browseHistoryInfo/clearHistoryRecords
-      let urls = this.$API.url +'/browseHistoryInfo/clearHistoryRecords';
-      var qs = require('qs');
-      let config = {
-          headers: {
-              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-          }
-      };
-      this.axios.post(urls)
-      .then((res) => {
-         
-        }, (err) => {
-          this.$message({
-            message: '数据请求失败!',
-            center: true
-          });
-      })
     },
     zhugeTrack (){
       this.historyParams.pageNumber = this.historyParams.pageNumber + 1;

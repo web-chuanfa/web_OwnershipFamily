@@ -27,6 +27,7 @@ import RegionSubstance from './components/tabContent/regionSubstance';
 import State from './components/region/state';
 import Trade from './components/region/trade';
 import City from './components/region/city';
+import count from './components/count'
 Vue.use(Router);
 export default new Router({
     routes: [
@@ -37,6 +38,10 @@ export default new Router({
         {
             path: '/home',
             component: Home
+        },
+        {
+            path: '/count',
+            component: count
         },
         {
             path: '/allViewChina',
